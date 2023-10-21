@@ -23,10 +23,9 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-
     const carCollection = client.db("cardb").collection("car");
+
+    //insert data
     app.post("/addProduct", async (req, res) => {
       const newCar = req.body;
       console.log("new Car", newCar);
@@ -34,12 +33,14 @@ async function run() {
       res.send(result);
     });
 
+    //show data
     app.get("/addProduct", async (req, res) => {
       const cursor = carCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
+    //details
     app.get("/addProduct/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -48,14 +49,41 @@ async function run() {
       console.log(id);
     });
 
+    //update
+    app.get("/addProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      const result = await carCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.put("/addProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upset: true };
+      const updateCar = req.body;
+      const car = {
+        $set: {
+          name: updateCar.name,
+          BName: updateCar.BName,
+          type: updateCar.type,
+          price: updateCar.price,
+          SDescription: updateCar.SDescription,
+          rating: updateCar.rating,
+          photo: updateCar.photo,
+        },
+      };
+      const result = await carCollection.updateOne(filter, car, options);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 run().catch(console.dir);
