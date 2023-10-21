@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const carCollection = client.db("cardb").collection("car");
+    const myCartCollection = client.db("cardb").collection("addtoCart");
 
     //insert data
     app.post("/addProduct", async (req, res) => {
@@ -75,6 +76,19 @@ async function run() {
         },
       };
       const result = await carCollection.updateOne(filter, car, options);
+      res.send(result);
+    });
+
+    //cart
+    app.get("/getCartData", async (req, res) => {
+      const result = await myCartCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/getCartData", async (req, res) => {
+      const newCar = req.body;
+      console.log("new Car", newCar);
+      const result = await myCartCollection.insertOne(newCar);
       res.send(result);
     });
 
